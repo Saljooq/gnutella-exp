@@ -8,7 +8,7 @@
 - Next we can respond to queries or forward them, also we can initiate queries
 <br>
 
-    ## keywords for search:
+## keywords for search:
 	- cli: search cat.png
 	- udp: search cat.png localhost:from localhost:origin
 	- udp: found cat.png localhost:founder -> start tcp listening thread 
