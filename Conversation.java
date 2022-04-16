@@ -1,11 +1,19 @@
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class Conversation {
 
-    private String command;
+    private command comm;
     private Integer originPort;
     private Integer senderPort;
+    private Integer TTL;
+    private String senderAddress;
+    private String originAddress;
+    private Long time;
+
+    public static enum command {
+        PING,
+        PONG,
+        SEARCH,
+        FOUND
+    };
 
 
     public Conversation(){
@@ -14,12 +22,16 @@ public class Conversation {
     }
     
 
-    public String getCommand() {
-        return this.command;
+    public command getCommand() {
+        return this.comm;
     }
 
-    public void setCommand(String command) {
-        this.command = command;
+    public void setCommand(command comm) {
+        this.comm = comm;
+    }
+
+    public void setCommand(String comm) {
+        this.comm = command.valueOf(comm);
     }
 
     public Integer getOriginPort() {

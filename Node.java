@@ -6,7 +6,16 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Main {
+public class Node {
+
+    public String address;
+    public Integer port;
+    public String name;
+
+    public Node{
+
+    }
+
     public static void main(String[] args) throws IOException {
 
         // Scanner scnr = new Scanner(System.in);
