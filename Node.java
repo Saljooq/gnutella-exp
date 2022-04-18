@@ -1,8 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,10 +8,18 @@ public class Node {
 
     public String address;
     public Integer port;
-    public String name;
+    public Boolean acknowledged;
+    public ArrayList<Node> neighbours;
+    public Integer interval;
+    public Conversation.command status;
+    public Long lastFetched;
 
-    public Node{
+    public Node() {
 
+    }
+
+    public boolean equals(Node n) {
+        return (address.equals(n.address) && port == n.port);
     }
 
     public static void main(String[] args) throws IOException {
@@ -26,24 +32,23 @@ public class Node {
         // ArrayList<String> directory = info.getFileNames();
 
         // for (String fileName : directory){
-        //     System.out.println(fileName);
+        // System.out.println(fileName);
         // }
-
 
         DatagramSocket ds = new DatagramSocket(8080);
 
-        // InetAddress address = InetAddress.getByName("localhost");  
-        
+        // InetAddress address = InetAddress.getByName("localhost");
+
         // String test = "testing udp connection";
 
         // System.out.print("Enter hello : ");
         // String hello = scnr.nextLine();
 
         // if (hello.equals("hello")){
-        //     System.out.println("congrats of typing hello");
+        // System.out.println("congrats of typing hello");
         // }
 
-        (new Thread(new Writer())).start();;
+        (new Thread(new Writer())).start();
 
         byte[] store = new byte[ds.getReceiveBufferSize()];
 
@@ -56,17 +61,10 @@ public class Node {
         for (int i = 0; i < storeToChar.length; i++)
             storeToChar[i] = (char) store[i];
 
-
         Conversation conv = Conversation.unmarshall(new String(storeToChar));
         System.out.println("RECEIVING : " + conv);
 
-
-
-        ds.close(); 
-
-
-
-
+        ds.close();
 
         // Once we're done
         // scnr.close();
@@ -74,22 +72,20 @@ public class Node {
     }
 }
 
-
-class Writer implements Runnable{
+class Writer implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
 
         Scanner scnr = new Scanner(System.in);
 
         System.out.print("Enter hello : ");
         String hello = scnr.nextLine();
 
-        if (hello.equals("hello")){
+        if (hello.equals("hello")) {
             System.out.println("congrats of typing hello");
         }
-        
+
     }
 
 }

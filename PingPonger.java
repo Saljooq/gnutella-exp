@@ -8,7 +8,7 @@ public class PingPonger implements Runnable {
     private Node to;
     private Conversation.command status;
 
-    public PingPonger(Conversation.command status, Node from, Node to){
+    public PingPonger(Conversation.command status, Node from, Node to) {
         this.from = from;
         this.to = to;
         this.status = status;
@@ -16,40 +16,34 @@ public class PingPonger implements Runnable {
 
     @Override
     public void run() {
-        try{
-        
+        try {
 
             DatagramSocket ds = new DatagramSocket();
 
-            InetAddress toAddress = InetAddress.getByName(to.address);  
-            
+            InetAddress toAddress = InetAddress.getByName(to.address);
+
             // String test = "testing udp connection";
 
             Conversation conv = new Conversation();
-            conv.setSenderPort(from.port);
-            conv.setCommand("PING");
+            conv.setAddress(from.address);
+            conv.setPort(from.port);
+            conv.setCommand(this.status.toString());
 
             String test = conv.toString();
 
-
-            DatagramPacket packet = new DatagramPacket(test.getBytes(), 
-            test.getBytes().length, 
-            toAddress,
-            to.port);
+            DatagramPacket packet = new DatagramPacket(test.getBytes(),
+                    test.getBytes().length,
+                    toAddress,
+                    to.port);
 
             ds.send(packet);
             System.out.println("Should hopefully be sent");
 
             ds.close();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Something went wrong. Error : " + e);
         }
 
-
     }
 
-
-    
-    
 }
