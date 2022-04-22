@@ -57,15 +57,12 @@ public class Conversation {
 
     public static Conversation unmarshall(String s) {
 
-        // Pattern p = Pattern.compile("{*}");
-        // Matcher m = p.matcher(s);
-        // s = m.
-        System.out.println("Converstion begins with : " + s);
+        // System.out.println("Converstion begins with : " + s);
 
         String[] entries = s.split(",");
 
-        for (String entry : entries)
-            System.out.println(entry);
+        // for (String entry : entries)
+        //     System.out.println(entry);
 
         Conversation conv = new Conversation();
 
@@ -98,6 +95,22 @@ public class Conversation {
         return conv;
 
     }
+
+    public static String customUnmarshaller(String in, String key){
+        String[] entries = in.split(",");
+
+        for (String entry : entries){
+
+            String[] entriesInner = entry.split("=");
+            if (entriesInner[0].equals(key)){
+                return entriesInner[1];
+            }
+        }
+
+        return null;
+
+    } 
+
 
     /**
      * @return Integer return the TTL
@@ -156,3 +169,4 @@ public class Conversation {
     }
 
 }
+

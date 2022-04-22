@@ -1,6 +1,5 @@
 make:
 	@javac Node.java fetchFolderInfo.java udpTest.java
-	@java Node
 
 test:
 	@java udpTest

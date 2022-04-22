@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.Scanner;
 
 public class CLI implements Runnable {
@@ -30,32 +31,40 @@ public class CLI implements Runnable {
                     continue;
                 }
 
-                Conversation in = Conversation.unmarshall("command=" + inputBreakDown[0] + "," + inputBreakDown[1]);
+                Conversation in = Conversation.unmarshall("command=" + inputBreakDown[0].toUpperCase() + "," + inputBreakDown[1]);
 
                 switch (in.getCommand()) {
                     case PING:
                         Node newNode = new Node();
                         newNode.address = in.getAddress();
                         newNode.port = in.getPort();
+                        newNode.status = Conversation.command.PING;
                         if (node.neighbours.contains(newNode)) {
                             System.out.println("Node already added");
                         }
                         // do nothing
                         else {
+                            newNode.lastFetched = (new Date()).getTime();
+                            node.neighbours.add(newNode);
+                            System.out.println("adding new neighbour => " + newNode);
                             (new Thread(new PingPonger(Conversation.command.PING, node, newNode))).start();
                         }
+                        break;
 
                     case PONG:
                         // cannot initiate
                         System.out.println("You can't PONG, only PING allowed in CLI");
+                        break;
                     case SEARCH:
                         //
                     case FOUND:
                         // cannot initiate
                         System.out.println("FOUND cannot be initiated from a CLI");
+                        break;
                     default:
                         //
                         System.out.println("No match found in CLI");
+                        break;
                 }
 
             } catch (Exception e) {

@@ -20,11 +20,13 @@ public class ConvManager implements Runnable {
 
             while (nodesItr.hasNext()) {
                 Node n = nodesItr.next();
+                // System.out.println(n);
 
                 if (currentTime > (n.lastFetched + (n.interval * 2))) {
                     System.out.println("Killing node at address=" + n.address + ":" + n.port);
                     nodesItr.remove();
                 } else if (n.status == Conversation.command.PING) {
+                    if (node.debug) System.out.println("pinging the neighbour => " + n);
                     (new Thread(new PingPonger(n.status, node, n))).start();
 
                 } else {

@@ -37,7 +37,7 @@ public class PingPonger implements Runnable {
                     to.port);
 
             ds.send(packet);
-            System.out.println("Should hopefully be sent");
+            if (from.debug) System.out.println("packet sent : " + conv);
 
             ds.close();
         } catch (Exception e) {
