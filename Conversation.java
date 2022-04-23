@@ -7,17 +7,37 @@ public class Conversation {
     private String address;
     private String originAddress;
     private Long time;
+    private String name;
+
+    public command getComm() {
+        return this.comm;
+    }
+
+    public void setComm(command comm) {
+        this.comm = comm;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public static enum command {
         PING,
         PONG,
-        SEARCH,
-        FOUND
+        QUERY,
+        HIT,
+        PUSH
     };
 
     public Conversation() {
         this.originPort = 0;
         this.port = 0;
+        this.TTL = 0;
+        this.time = 0l;
     }
 
     public command getCommand() {
@@ -52,12 +72,17 @@ public class Conversation {
     public String toString() {
         return "command=" + getCommand() +
                 ",address=" + getAddress() + ":" + getPort() +
-                ",origin=" + getOriginAddress() + ":" + getOriginPort() + "=";
+                ",origin=" + getOriginAddress() + ":" + getOriginPort() + 
+                ",TTL=" + getTTL() +
+                ",name=" + getName() +
+                ",time=" + getTime();
     }
 
     public static Conversation unmarshall(String s) {
 
         // System.out.println("Converstion begins with : " + s);
+
+        s = s.trim();
 
         String[] entries = s.split(",");
 
@@ -82,6 +107,12 @@ public class Conversation {
                         String[] addrAndPort = breakEntries[1].split(":");
                         conv.setAddress(addrAndPort[0]);
                         conv.setPort(Integer.parseInt(addrAndPort[1]));
+                    } else if (breakEntries[0].equals("name")){
+                        conv.setName(breakEntries[1]);
+                    } else if (breakEntries[0].equals("TTL")){
+                        conv.setTTL(Integer.parseInt(breakEntries[1]));
+                    } else if (breakEntries[0].equals("time")){
+                        conv.setTime(Long.parseLong(breakEntries[1]));
                     } else
                         System.out.println("unidentified argument found while unmarshalling");
                 } catch (NumberFormatException e) {

@@ -1,5 +1,6 @@
 import java.util.Date;
 import java.util.Scanner;
+import java.util.Date;
 
 public class CLI implements Runnable {
 
@@ -55,11 +56,22 @@ public class CLI implements Runnable {
                         // cannot initiate
                         System.out.println("You can't PONG, only PING allowed in CLI");
                         break;
-                    case SEARCH:
+                    case QUERY:
                         //
-                    case FOUND:
+                        long currTime = (new Date()).getTime();
+                        // the time, address, query name etc should be consumed from conversation by 
+                        // non-original nodes
+                        Query newQuery = new Query(in.getName(), currTime, node.address, node.port);
+                        newQuery.setNode(node);
+
+                        node.processedQueries.add(newQuery);
+
+                        (new Thread(newQuery)).start();
+
+                        break;
+                    case HIT:
                         // cannot initiate
-                        System.out.println("FOUND cannot be initiated from a CLI");
+                        System.out.println("HIT cannot be initiated from a CLI");
                         break;
                     default:
                         //

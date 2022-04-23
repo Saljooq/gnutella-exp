@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -14,6 +12,8 @@ public class Node {
     public Conversation.command status;
     public Long lastFetched;
     public Boolean debug;
+    public String name;
+    public ArrayList<Query> processedQueries;
 
     public String toString(){
         return "address=" + address + ":" + port + ",lastFetched=" + lastFetched;
@@ -117,7 +117,9 @@ public class Node {
             Conversation newConv = Conversation.unmarshall(args[0]);
             this.address = newConv.getAddress();
             this.port = newConv.getPort();
+            this.name = newConv.getName();
             this.neighbours = new ArrayList<>();
+            this.processedQueries = new ArrayList<>();
             this.interval = 2000; // 2000 ms
             String  debugBool = Conversation.customUnmarshaller(args[0], "debug");
             this.debug = debugBool == null ? false : debugBool.equals("true");

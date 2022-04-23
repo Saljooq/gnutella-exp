@@ -10,13 +10,13 @@ public class fetchFolderInfo {
         this.folderName = folderName;
     }
 
-    public ArrayList<String> getFileNames(){
+    public ArrayList<File> getFiles(){
         File directory = new File(folderName);
 
         if (!directory.exists()) {
             directory.mkdir();
         }
 
-        return new ArrayList<String>(Arrays.asList(directory.list()));
+        return new ArrayList<File>(Arrays.asList(directory.listFiles()));
     }
 }

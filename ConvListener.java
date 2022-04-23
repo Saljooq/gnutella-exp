@@ -1,5 +1,7 @@
+import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
@@ -38,6 +40,8 @@ public class ConvListener implements Runnable {
                 for (int i = 0; i < storeToChar.length; i++)
                     storeToChar[i] = (char) store[i];
 
+                
+                // System.out.println(storeToChar);
                 Conversation conv = Conversation.unmarshall(new String(storeToChar));
                 if (node.debug) System.out.println("RECEIVING : " + conv);
                 Node newNode;
@@ -79,7 +83,7 @@ public class ConvListener implements Runnable {
                             // node.neighbours.add(newNode);
                             System.out.println("Received Pong. Node should be on the list but it is not found. Conversation : " + conv.toString());
                             if (node.debug){
-                                System.out.print("SUMMERY of neighbours--> ");
+                                System.out.print("SUMMARY of neighbours--> ");
                                 for (Node neighbour : node.neighbours){
                                     System.out.print(neighbour + "--> ");
                                 }
@@ -88,10 +92,27 @@ public class ConvListener implements Runnable {
                             }
                         }
                         break;
-                    case SEARCH:
+                    case QUERY:
                         //
+                        System.out.println("Received query request : " + conv);
+                        Query incomingQuery = new Query(conv);
+
+                        Optional<Query> matchQuery = node.processedQueries.stream().filter(n -> n.equals(incomingQuery)).findAny();
+                        if (matchQuery.isPresent()){
+                            System.out.println("Already processed this query");
+                        }
+                        else{
+                            node.processedQueries.add(incomingQuery);
+                        }
+
+                        fetchFolderInfo folderFile = new fetchFolderInfo(node.name);
+                        ArrayList<File> files = folderFile.getFiles();
+                        for (File file : files){
+                            System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
+                        }
+
                         break;
-                    case FOUND: 
+                    case HIT: 
                         System.out.println("FOUND cannot be initiated from a CLI");
                         break;
                     default: 
