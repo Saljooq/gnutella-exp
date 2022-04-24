@@ -101,14 +101,21 @@ public class ConvListener implements Runnable {
                         if (matchQuery.isPresent()){
                             System.out.println("Already processed this query");
                         }
-                        else{
+                        else {
                             node.processedQueries.add(incomingQuery);
-                        }
+                        
+                            fetchFolderInfo folderFile = new fetchFolderInfo(node.name);
+                            ArrayList<File> files = folderFile.getFiles();
+                            for (File file : files){
+                                if (file.getName().toLowerCase().contains(incomingQuery.term.toLowerCase()))
+                                    System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
+                            }
 
-                        fetchFolderInfo folderFile = new fetchFolderInfo(node.name);
-                        ArrayList<File> files = folderFile.getFiles();
-                        for (File file : files){
-                            System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
+                            // send the query to all the neighbours
+                            Query newQuery = new Query(conv);
+                            newQuery.setNode(node);
+                            (new Thread(newQuery)).start();
+                            
                         }
 
                         break;
