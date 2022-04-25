@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Node {
 
@@ -34,43 +33,10 @@ public class Node {
         }
         Node n = (Node) o;
 
-        // if (address.equals(n.address)){
-        //     System.out.println("address match");
-        // }
-        // if (port.equals(n.port)){
-        //     System.out.println("port match");
-        // }
-
         return (address.equalsIgnoreCase(n.address) && port.equals(n.port));
     }
 
     public static void main(String[] args) throws IOException {
-
-        // Scanner scnr = new Scanner(System.in);
-        // System.out.print("Enter name of folder : ");
-
-        // fetchFolderInfo info = new fetchFolderInfo(scnr.nextLine());
-
-        // ArrayList<String> directory = info.getFileNames();
-
-        // for (String fileName : directory){
-        // System.out.println(fileName);
-        // }
-
-        // DatagramSocket ds = new DatagramSocket(8080);
-
-        // InetAddress address = InetAddress.getByName("localhost");
-
-        // String test = "testing udp connection";
-
-        // System.out.print("Enter hello : ");
-        // String hello = scnr.nextLine();
-
-        // if (hello.equals("hello")){
-        // System.out.println("congrats of typing hello");
-        // }
-
-        // (new Thread(new Writer())).start();
 
         Node node = new Node();
 
@@ -84,28 +50,7 @@ public class Node {
         (new Thread(new ConvManager(node))).start();
 
         (new Thread(new CLI(node))).start();
-
-        // byte[] store = new byte[ds.getReceiveBufferSize()];
-
-        // DatagramPacket packet = new DatagramPacket(store, store.length);
-
-        // ds.receive(packet);
-
-        // char[] storeToChar = new char[store.length];
-
-        // for (int i = 0; i < storeToChar.length; i++)
-        //     storeToChar[i] = (char) store[i];
-
-        // Conversation conv = Conversation.unmarshall(new String(storeToChar));
-        // System.out.println("RECEIVING : " + conv);
-
-        // ds.close();
-
-        // Once we're done
-        // scnr.close();
-
     }
-
 
     public Boolean processArguments (String[] args){
 
@@ -130,22 +75,3 @@ public class Node {
     }
 
 }
-
-class Writer implements Runnable {
-
-    @Override
-    public void run() {
-
-        Scanner scnr = new Scanner(System.in);
-
-        System.out.print("Enter hello : ");
-        String hello = scnr.nextLine();
-
-        if (hello.equals("hello")) {
-            System.out.println("congrats of typing hello");
-        }
-
-    }
-
-}
-

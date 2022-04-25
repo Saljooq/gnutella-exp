@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Conversation {
 
     private command comm;
@@ -66,6 +69,42 @@ public class Conversation {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public void setQueryHitResults(List<QueryResult> files){
+        String newName = "";
+
+        for (int i = 0; i < files.size(); i++){
+            newName += files.get(i).fileName + ":" + files.get(i).size + "?";
+        }
+
+
+        this.name = newName;
+    }
+
+    public static class QueryResult{
+        public String fileName;
+        public Long size;
+    }
+
+    public List<QueryResult> getQueryResults(){
+
+
+        String[] entries = name.split("\\?");
+
+        ArrayList<QueryResult> result = new ArrayList<>();
+
+        for (String entry : entries){
+            String[] breakup = entry.split(":");
+            if (breakup.length < 1) continue;
+            QueryResult q = new QueryResult();
+            q.fileName = breakup[0];
+            try{  q.size = Long.parseLong(breakup[1]); } catch (Exception e) { System.out.println("Error in query result parsing number. Error : " + e);}
+            result.add(q);
+        }
+
+        return result;
+
     }
 
     @Override

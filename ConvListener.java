@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class ConvListener implements Runnable {
@@ -106,21 +107,50 @@ public class ConvListener implements Runnable {
                         
                             fetchFolderInfo folderFile = new fetchFolderInfo(node.name);
                             ArrayList<File> files = folderFile.getFiles();
+
+                            List<Conversation.QueryResult> results = new ArrayList<>();
+
                             for (File file : files){
-                                if (file.getName().toLowerCase().contains(incomingQuery.term.toLowerCase()))
+                                if (file.getName().toLowerCase().contains(incomingQuery.term.toLowerCase())){
                                     System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
+                                    Conversation.QueryResult res = new Conversation.QueryResult();
+                                    res.fileName = file.getName();
+                                    res.size = file.length();
+                                    results.add(res);
+                                }
                             }
 
                             // send the query to all the neighbours
                             Query newQuery = new Query(conv);
                             newQuery.setNode(node);
                             (new Thread(newQuery)).start();
+
+
+                            // if we have any matches we let the querying node know
+                            if (results.size() > 0)
+                            {
+                                QueryHit newHit = new QueryHit(conv.getAddress(), conv.getPort(), results);
+                                newHit.setNode(node);
+                                (new Thread(newHit)).start();
+                            }
+
                             
                         }
 
                         break;
                     case HIT: 
-                        System.out.println("FOUND cannot be initiated from a CLI");
+                        // Processing results from nodes that say they got hit
+
+                        System.out.println("We got a hit from = " + conv.getAddress() + ":" + conv.getPort());
+                        System.out.println("START RESULTS --->");
+
+                        List<Conversation.QueryResult> results = conv.getQueryResults();
+
+                        for (Conversation.QueryResult res : results){
+                            System.out.println(res.fileName + "    " + (res.size/1000) + " KB");
+                        }
+
+                        System.out.println("<--- END RESULTS");
                         break;
                     default: 
                         System.out.println("No match found in CLI");
