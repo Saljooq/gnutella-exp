@@ -24,6 +24,7 @@ public class ConvListener implements Runnable {
         } catch (Exception e) {
             System.out.println("failed to secure port " + node.port + " Error : " + e);
         }
+
         while (true) {
 
             try {
@@ -151,6 +152,12 @@ public class ConvListener implements Runnable {
                         }
 
                         System.out.println("<--- END RESULTS");
+                        break;
+
+                    case PUSH:
+                        System.out.println("Received request for file="+conv.getName()+ " from addr=" + conv.getAddress() + ":" + conv.getPort());
+                        PushDataSender dataSender = new PushDataSender(conv.getAddress(), conv.getPort(), conv.getName(), node);
+                        (new Thread(dataSender)).start();
                         break;
                     default: 
                         System.out.println("No match found in CLI");

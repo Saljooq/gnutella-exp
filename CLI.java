@@ -73,6 +73,16 @@ public class CLI implements Runnable {
                         // cannot initiate
                         System.out.println("HIT cannot be initiated from a CLI");
                         break;
+
+                    case PUSH:
+                        PushCommand push = new PushCommand(in.getAddress(), in.getPort(), in.getName());
+                        push.setNode(node);
+
+                        PushDataReceiver dataReceiver = new PushDataReceiver(in.getName(), node);
+                        (new Thread(dataReceiver)).start();
+
+                        (new Thread(push)).start();
+                        break;
                     default:
                         //
                         System.out.println("No match found in CLI");
