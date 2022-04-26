@@ -1,27 +1,27 @@
 # Gnuttella p2p network
 
 ## Introduction
-This project is meant to emulate p2p working of multiple nodes. The allows for apis to create a new node, connect with others, drop them if they don't respond, and propagate queries to enable search. Also, hit allows to identify if a node has a file and push allows for transfer of file.
+This project is meant to emulate working of multiple p2p nodes network operating without a central-node. The allows for apis to create a new node, connect with others, drop them if they don't respond, and propagate queries to enable search. Also, hit allows a node to identify if it has the requested file and push allows for transfer of file.
 
 ## Main classes
 - Conversation - This class is used to marshall and unmarshall all communication between nodes as well as CLI-input from the users.
 - CLI - listens for users input and processes custom requests 
-- ConvListener - This class is used to listen to udp packets from other nodes and process them accordingly
-- ConvManager - Responsible for checking on neighbours and dropping them if they haven't responded in some time
+- ConvListener - This class is used to listen to udp packets from other nodes and process them accordingly.
+- ConvManager - Responsible for checking on neighbours i.e. pinging them and dropping them if they haven't responded in some time.
 
 ## Custom UDP classes
 - PingPonger - This is responsible for creating a Ping or a Pong packet with the relevant information (address, port etc) and sending it to a node.
-- Query - This is responsible for creating a Query packet with the relevant information (file name, originator's address etc) and sending it to all the neighbouring node.
-- QueryHit - This is responsible for creating a QueryHit packet with the relevant information (list of file names, sizes, and sender's address etc) and sending it to all the requesting node.
-- PushCommand - This is responsible for creating a Push packet with the relevant information (file name, requestor's address etc) and sending it to all the a node with the file - expecting it to send back the file.
+- Query - This is responsible for creating a Query packet with the relevant information (file name, originator's address etc) and sending it to all the neighbouring nodes.
+- QueryHit - This is responsible for creating a QueryHit packet with the relevant information (list of file names, sizes, and sender's address etc) and sending it to the requesting node.
+- PushCommand - This is responsible for creating a Push packet with the relevant information (file name, requestor's address etc) and sending it to the node with the file - expecting it to send back the file.
 
 ## Custom TCP classes
-- PushDataSender - Right after receiving a Push packet with a file, if we have the file we send it to the requestor's address. THis class is responsible for sending the data
-- PushDataReceiver - Right before sending a Push packet, the requester starts a TCP server to receive the file on the specified address. Additionally, this class is also responsible for saving the file in the user's folder
+- PushDataSender - Right after receiving a Push packet with a fileName, if we have the file we send it to the requestor's address/port over TCP. This class is responsible for sending the data
+- PushDataReceiver - Right before sending a Push packet, the requester starts a TCP server to receive the file on the specified address/port. Additionally, this class is also responsible for saving the file in the user's folder
 
 ## Entry point
 The Node takes two inputs, the address and user's name (to be used as folder name). There are three threads that get activated when we start Node (which is the main entry point):
-- CLI - This will process input from the user (for intance 'ping address=localhost:8080')
+- CLI - This will process input from the user (for instance 'ping address=localhost:8080')
 - ConvListener - This thread will process any Conversation (ping, pong, query etc.) coming from other nodes
 - ConvManager - This thread manages all the nodes i.e. drops them if they haven't responed after a while
 
@@ -38,24 +38,25 @@ java Node address=localhost:8000,name=Musk
 
 ## Sample CLI:
 ```
-ping address=localhost:8000
-query name=cat
-push catPair.jpg
+ping address=localhost:8000 
+query name=cat,TTL=2
+push name=catPair.jpg,address=localhost:8000 
 ```
 
 # Test: 
 ### Test starts with a ***root*** node 
 ### Next we have two nodes join them, ***bridge-one*** and ***bridge-two***
-### Next we have two nodes joining  ***bridge-one*** , first the ***temp*** and next ***sample***. ***temp*** leaves the network
+### Next we have two nodes joining  ***bridge-one*** , first the ***sample*** and next ***temp***. Next ***temp*** leaves the network
 ### ***bridge-one*** is alerted of ***temp*** leaving and tries to add ***draw*** to the network
 ### ***bridge-two*** starts a new query for 'cat' pictures
+### ***draw*** is the only one with cat pictures
 ### The direction of query is as follows - ***bridge-two*** -> ***root*** -> ***bridge-one*** -> ***sample*** & ***draw*** - this will require a minimum of TTL=3
 ### ***draw*** should report a hit to ***bridge-two***
 ### ***bridge-two*** should request a push and get the reqested picture in the ***bridge-two*** folder
 
 ![](./docs/nodes-diag.PNG)
 
-# Terminal preview of tests:
+# Terminal preview of the test:
 
 ## Terminal root
 ```
