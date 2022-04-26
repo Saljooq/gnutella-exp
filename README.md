@@ -1,5 +1,8 @@
 # Gnuttella p2p network
 
+## Author : Saljooq Altaf
+<br>
+
 ## Introduction
 This project is meant to emulate working of multiple p2p nodes network operating without a central-node. The allows for apis to create a new node, connect with others, drop them if they don't respond, and propagate queries to enable search. Also, hit allows a node to identify if it has the requested file and push allows for transfer of file.
 
