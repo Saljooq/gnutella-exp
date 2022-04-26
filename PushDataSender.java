@@ -59,7 +59,7 @@ public class PushDataSender implements Runnable{
 
                 clientSocket.close();
 
-                System.out.println("Successfully sent");
+                System.out.println("Successfully sent " + filename + " to " + address + ":" + port);
             }
             else{
                 System.out.println("Filename incorrect. Do not have " + filename);

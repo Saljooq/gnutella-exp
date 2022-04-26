@@ -64,7 +64,7 @@ public class ConvListener implements Runnable {
                         }
                         else{
                             newNode.lastFetched = (new Date()).getTime();
-                            System.out.println("We just got pinged by a new node. Adding neighbour => " + newNode);
+                            System.out.println("Adding neighbour => " + newNode.address + ":" + newNode.port);
                             node.neighbours.add(newNode);
                         }
                         (new Thread(new PingPonger(Conversation.command.PONG, node, newNode))).start();
@@ -96,12 +96,13 @@ public class ConvListener implements Runnable {
                         break;
                     case QUERY:
                         //
-                        System.out.println("Received query request : " + conv);
+                        if (node.debug) System.out.println("Received query request : " + conv);
+                        conv.setTTL(conv.getTTL() - 1);
                         Query incomingQuery = new Query(conv);
 
                         Optional<Query> matchQuery = node.processedQueries.stream().filter(n -> n.equals(incomingQuery)).findAny();
                         if (matchQuery.isPresent()){
-                            System.out.println("Already processed this query");
+                            if (node.debug) System.out.println("Already processed this query");
                         }
                         else {
                             node.processedQueries.add(incomingQuery);
@@ -113,7 +114,7 @@ public class ConvListener implements Runnable {
 
                             for (File file : files){
                                 if (file.getName().toLowerCase().contains(incomingQuery.term.toLowerCase())){
-                                    System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
+                                    if (node.debug) System.out.println(file.getName() + " : " + (file.length()/1000) + " KB");
                                     Conversation.QueryResult res = new Conversation.QueryResult();
                                     res.fileName = file.getName();
                                     res.size = file.length();
@@ -155,7 +156,7 @@ public class ConvListener implements Runnable {
                         break;
 
                     case PUSH:
-                        System.out.println("Received request for file="+conv.getName()+ " from addr=" + conv.getAddress() + ":" + conv.getPort());
+                        if (node.debug) System.out.println("Received request for file="+conv.getName()+ " from addr=" + conv.getAddress() + ":" + conv.getPort());
                         PushDataSender dataSender = new PushDataSender(conv.getAddress(), conv.getPort(), conv.getName(), node);
                         (new Thread(dataSender)).start();
                         break;

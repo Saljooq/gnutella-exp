@@ -1,28 +1,131 @@
-- Also need self address 
-- First - create a root node - this wouldn't look for anyone but listening for new nodes - max 3
-- Next create a node - with the target address:port and the node's name
-- Pings the node.
-- If we get a pong back we have a connection
-- User gets a cli - Where they can query neighbours
-- We create a folder, or if one is already there we query the goods and hold an array
-- Next we can respond to queries or forward them, also we can initiate queries
+# Gnuttella p2p network
+
+## Introduction
+This project is meant to emulate p2p working of multiple nodes. The allows for apis to create a new node, connect with others, drop them if they don't respond, and propagate queries to enable search. Also, hit allows to identify if a node has a file and push allows for transfer of file.
+
+## Main classes
+- Conversation - This class is used to marshall and unmarshall all communication between nodes as well as CLI-input from the users.
+- CLI - listens for users input and processes custom requests 
+- ConvListener - This class is used to listen to udp packets from other nodes and process them accordingly
+- ConvManager - Responsible for checking on neighbours and dropping them if they haven't responded in some time
+
+## Custom UDP classes
+- PingPonger - This is responsible for creating a Ping or a Pong packet with the relevant information (address, port etc) and sending it to a node.
+- Query - This is responsible for creating a Query packet with the relevant information (file name, originator's address etc) and sending it to all the neighbouring node.
+- QueryHit - This is responsible for creating a QueryHit packet with the relevant information (list of file names, sizes, and sender's address etc) and sending it to all the requesting node.
+- PushCommand - This is responsible for creating a Push packet with the relevant information (file name, requestor's address etc) and sending it to all the a node with the file - expecting it to send back the file.
+
+## Custom TCP classes
+- PushDataSender - Right after receiving a Push packet with a file, if we have the file we send it to the requestor's address. THis class is responsible for sending the data
+- PushDataReceiver - Right before sending a Push packet, the requester starts a TCP server to receive the file on the specified address. Additionally, this class is also responsible for saving the file in the user's folder
+
+## Entry point
+The Node takes two inputs, the address and user's name (to be used as folder name). There are three threads that get activated when we start Node (which is the main entry point):
+- CLI - This will process input from the user (for intance 'ping address=localhost:8080')
+- ConvListener - This thread will process any Conversation (ping, pong, query etc.) coming from other nodes
+- ConvManager - This thread manages all the nodes i.e. drops them if they haven't responed after a while
+
+## Makefile
+- make - compiles all the necessary java files
+- make clean - cleans all the .class files
+
+## Sample initialise
+For starting a node for Musk, at localhost and port 8000, we will enter the following
+```
+make
+java Node address=localhost:8000,name=Musk
+```
+
+## Sample CLI:
+```
+ping address=localhost:8000
+query name=cat
+push catPair.jpg
+```
+
+# Test: 
+### Test starts with a ***root*** node 
+### Next we have two nodes join them, ***bridge-one*** and ***bridge-two***
+### Next we have two nodes joining  ***bridge-one*** , first the ***temp*** and next ***sample***. ***temp*** leaves the network
+### ***bridge-one*** is alerted of ***temp*** leaving and tries to add ***draw*** to the network
+### ***bridge-two*** starts a new query for 'cat' pictures
+### The direction of query is as follows - ***bridge-two*** -> ***root*** -> ***bridge-one*** -> ***sample*** & ***draw*** - this will require a minimum of TTL=3
+### ***draw*** should report a hit to ***bridge-two***
+### ***bridge-two*** should request a push and get the reqested picture in the ***bridge-two*** folder
+
+![](./docs/nodes-diag.PNG)
+
+# Terminal preview of tests:
+
+## Terminal root
+```
+$ make
+# generating all the necessary class files - To run enter 'java Node address=localhost:8000,name=Musk'
+$ java Node address=localhost:8011,name=root
+Adding neighbour => localhost:8021
+Adding neighbour => localhost:8022
+^C
+```
+## Terminal bridge-one
+```
+$ java Node address=localhost:8021,name=bridge-one
+ping address=localhost:8011
+adding new neighbour => localhost:8011
+Adding neighbour => localhost:8031
+Adding neighbour => localhost:8032
+Killing node at address=localhost:8032
+ping address=localhost:8033
+adding new neighbour => localhost:8033
+Killing node at address=localhost:8011
+^C
+```
+## Terminal bridge-two
+```
+$ java Node address=localhost:8022,name=bridge-two
+ping address=localhost:8011
+adding new neighbour => localhost:8011
+query name=cat,TTL=1
+query name=cat,TTL=2
+query name=cat,TTL=3
+We got a hit from = localhost:8033
+START RESULTS --->
+catPair.jpg    34 KB
+catWithGlasses.jpg    63 KB
+<--- END RESULTS
+push name=catWithGlasses.jpg,address=localhost:8033
+Successfully received catWithGlasses.jpg
+Killing node at address=localhost:8011
+^C
+
+```
+## Terminal sample
+```
+$ java Node address=localhost:8031,name=sample
+ping address=localhost:8021
+adding new neighbour => localhost:8021
+Killing node at address=localhost:8021
+```
+## Terminal temp
+```
+$ java Node address=localhost:8032,name=temp
+ping address=localhost:8021
+adding new neighbour => localhost:8021
+^C
+```
+## Terminal draw
+```
+$ java Node address=localhost:8033,name=draw
+Adding neighbour => localhost:8021
+Successfully sent
+Killing node at address=localhost:8021
+^C
+$ make clean
+# cleaning up all th extra files
+```
+
+### Transferred document catWithGlasses.jpg was successfully saved in the bridge-two folder
 <br>
 
-## keywords for search:
-- cli: search cat.png
-- udp: search cat.png localhost:from localhost:origin
-- udp: found cat.png localhost:founder -> start tcp listening thread 
-- udp: ready cat.png -> start sending tcp packet
-
-
-# Detailed Plan
-## Node
-### There are three core threads - beginning with a pre-processor to initialize values of the node
-- CLI - All args go here -> TTL, command, IP, address...
-- Conv-listener - Only updates last updated for neighbour nodes + creates new nodes
-- Conv-manager - Checks every 2 seconds, initiates ping and pong
-
-
-# Example of CLI
-- SEARCH catPair.jpg
-- PING localhost:8085
+# Notes
+- Rather than announcing the size and number of files upon ping, node only shares the match when queried - I though this was a simpler implementation and easier to check
+- Rather than a unique id for a request/query, we use a combination of time, address, and query term to identify it - significantly lowering the chance of collision

@@ -1,6 +1,5 @@
 import java.util.Date;
 import java.util.Scanner;
-import java.util.Date;
 
 public class CLI implements Runnable {
 
@@ -47,7 +46,7 @@ public class CLI implements Runnable {
                         else {
                             newNode.lastFetched = (new Date()).getTime();
                             node.neighbours.add(newNode);
-                            System.out.println("adding new neighbour => " + newNode);
+                            System.out.println("adding new neighbour => " + newNode.address + ":" + newNode.port);
                             (new Thread(new PingPonger(Conversation.command.PING, node, newNode))).start();
                         }
                         break;
@@ -61,7 +60,8 @@ public class CLI implements Runnable {
                         long currTime = (new Date()).getTime();
                         // the time, address, query name etc should be consumed from conversation by 
                         // non-original nodes
-                        Query newQuery = new Query(in.getName(), currTime, node.address, node.port);
+                        if (in.getTTL() == 0) in.setTTL(2);
+                        Query newQuery = new Query(in.getName(), currTime, node.address, node.port, in.getTTL());
                         newQuery.setNode(node);
 
                         node.processedQueries.add(newQuery);
