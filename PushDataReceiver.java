@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PushDataReceiver implements Runnable {
@@ -46,14 +47,19 @@ public class PushDataReceiver implements Runnable {
 
             byte[] buf = new byte[BUFFER_SIZE];
 
+            Long start = (new Date()).getTime();
             try {
                 while (true) {
                     if (inStream.read(buf) == -1)
                         break;
-                    os.write(buf);
+                    
+                        os.write(buf);
                 }
             } catch (Exception e) {
             } // should end when file has ended
+
+            Long total = (new Date()).getTime() - start;
+            float time = total / 1000;
 
             os.close();
 
@@ -63,7 +69,7 @@ public class PushDataReceiver implements Runnable {
             clientSocket.close();
             servertSocket.close();
 
-            System.out.println("Successfully received " + filename);
+            System.out.println("Successfully received " + filename + " in " + time + " seconds");
 
         } catch (IOException e) {
             System.out.println("Something went wrong in push data sender");
