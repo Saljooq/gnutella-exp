@@ -15,6 +15,7 @@ public class PushDataReceiver implements Runnable{
 
     String filename;
     Node fromNode;
+    int BUFFER_SIZE = 65536;
 
     public PushDataReceiver(
     String filename,
@@ -46,14 +47,17 @@ public class PushDataReceiver implements Runnable{
             OutputStream os = new FileOutputStream(newFile);
 
 
-            byte buf = 0;
+            byte[] buf = new byte[BUFFER_SIZE];
+
+
             try{
                 while (true)
                 {
-                    buf = inStream.readByte();
+                    if (inStream.read(buf) == -1)
+                        break;
                     os.write(buf);
                 }
-            }catch (EOFException e){} // should end when file has ended
+            }catch (IOException e){} // should end when file has ended
 
             os.close();
 
