@@ -9,27 +9,28 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class PushDataReceiver implements Runnable{
+public class PushDataReceiver implements Runnable {
 
     String filename;
     Node fromNode;
+    int BUFFER_SIZE = 65536;
 
     public PushDataReceiver(
-    String filename,
-    Node fromNode)
-    {
+            String filename,
+            Node fromNode) {
         this.filename = filename;
         this.fromNode = fromNode;
     }
 
     @Override
     public void run() {
-        
+
         try {
 
-            ServerSocket servertSocket = new ServerSocket(fromNode.port); 
+            ServerSocket servertSocket = new ServerSocket(fromNode.port);
 
             // create text reader and writer
             DataInputStream inStream;
@@ -40,20 +41,26 @@ public class PushDataReceiver implements Runnable{
 
             (new fetchFolderInfo(fromNode.name)).getFiles(); // this should create the folder necessary
 
-
-            File newFile = new File(fromNode.name , filename);
+            File newFile = new File(fromNode.name, filename);
 
             OutputStream os = new FileOutputStream(newFile);
 
-
-            byte buf = 0;
-            try{
-                while (true)
-                {
-                    buf = inStream.readByte();
-                    os.write(buf);
+            byte[] buf = new byte[BUFFER_SIZE];
+            int inputSize = 0;
+            Long start = (new Date()).getTime();
+            try {
+                while (true) {
+                    inputSize = inStream.read(buf);
+                    if (inputSize == -1)
+                        break;
+                    
+                    os.write(buf, 0, inputSize);
                 }
-            }catch (EOFException e){} // should end when file has ended
+            } catch (Exception e) {
+            } // should end when file has ended
+
+            Long total = (new Date()).getTime() - start;
+            float time = total / 1000;
 
             os.close();
 
@@ -63,11 +70,12 @@ public class PushDataReceiver implements Runnable{
             clientSocket.close();
             servertSocket.close();
 
-            System.out.println("Successfully received " + filename);
+            System.out.println("Successfully received " + filename + " in " + time + " seconds");
 
-    } catch (IOException e) {
-        System.out.println("Something went wrong in push data sender");;
-    }
+        } catch (IOException e) {
+            System.out.println("Something went wrong in push data sender");
+            ;
+        }
 
     }
 
