@@ -11,26 +11,25 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PushDataReceiver implements Runnable{
+public class PushDataReceiver implements Runnable {
 
     String filename;
     Node fromNode;
     int BUFFER_SIZE = 65536;
 
     public PushDataReceiver(
-    String filename,
-    Node fromNode)
-    {
+            String filename,
+            Node fromNode) {
         this.filename = filename;
         this.fromNode = fromNode;
     }
 
     @Override
     public void run() {
-        
+
         try {
 
-            ServerSocket servertSocket = new ServerSocket(fromNode.port); 
+            ServerSocket servertSocket = new ServerSocket(fromNode.port);
 
             // create text reader and writer
             DataInputStream inStream;
@@ -41,23 +40,20 @@ public class PushDataReceiver implements Runnable{
 
             (new fetchFolderInfo(fromNode.name)).getFiles(); // this should create the folder necessary
 
-
-            File newFile = new File(fromNode.name , filename);
+            File newFile = new File(fromNode.name, filename);
 
             OutputStream os = new FileOutputStream(newFile);
 
-
             byte[] buf = new byte[BUFFER_SIZE];
 
-
-            try{
-                while (true)
-                {
+            try {
+                while (true) {
                     if (inStream.read(buf) == -1)
                         break;
                     os.write(buf);
                 }
-            }catch (IOException e){} // should end when file has ended
+            } catch (Exception e) {
+            } // should end when file has ended
 
             os.close();
 
@@ -69,9 +65,10 @@ public class PushDataReceiver implements Runnable{
 
             System.out.println("Successfully received " + filename);
 
-    } catch (IOException e) {
-        System.out.println("Something went wrong in push data sender");;
-    }
+        } catch (IOException e) {
+            System.out.println("Something went wrong in push data sender");
+            ;
+        }
 
     }
 
