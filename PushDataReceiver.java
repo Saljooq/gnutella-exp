@@ -46,14 +46,15 @@ public class PushDataReceiver implements Runnable {
             OutputStream os = new FileOutputStream(newFile);
 
             byte[] buf = new byte[BUFFER_SIZE];
-
+            int inputSize = 0;
             Long start = (new Date()).getTime();
             try {
                 while (true) {
-                    if (inStream.read(buf) == -1)
+                    inputSize = inStream.read(buf);
+                    if (inputSize == -1)
                         break;
                     
-                        os.write(buf);
+                    os.write(buf, 0, inputSize);
                 }
             } catch (Exception e) {
             } // should end when file has ended
