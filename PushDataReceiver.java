@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,15 +49,25 @@ public class PushDataReceiver implements Runnable {
 
             os = new FileOutputStream(newFile);
 
+            ByteBuffer sizeBuff = ByteBuffer.allocate(Long.BYTES);
+            byte[] sizeByte = new byte[Long.BYTES];
+            inStream.read(sizeByte);
+            sizeBuff.put(sizeByte);
+            sizeBuff.flip();
+            long fileSize = sizeBuff.getLong();
+            System.out.println("File Size incoming : " + fileSize);
+
             byte[] buf = new byte[BUFFER_SIZE];
             int inputSize = 0;
             Long start = (new Date()).getTime();
+
             try {
+
                 while (true) {
                     inputSize = inStream.read(buf);
                     if (inputSize == -1)
                         break;
-                    
+
                     os.write(buf, 0, inputSize);
                 }
             } catch (Exception e) {
@@ -71,13 +82,16 @@ public class PushDataReceiver implements Runnable {
             System.out.println("Something went wrong in push data receiver");
         }
 
+        try
 
-        try{
+        {
+
             os.close();
             clientSocket.close();
             servertSocket.close();
             inStream.close();
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
 }

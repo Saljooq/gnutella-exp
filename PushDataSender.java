@@ -3,9 +3,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.List;
 
-public class PushDataSender implements Runnable{
+public class PushDataSender implements Runnable {
 
     String address;
     int port;
@@ -13,10 +14,9 @@ public class PushDataSender implements Runnable{
     Node fromNode;
 
     public PushDataSender(String address,
-    int port,
-    String filename,
-    Node fromNode)
-    {
+            int port,
+            String filename,
+            Node fromNode) {
         this.address = address;
         this.port = port;
         this.filename = filename;
@@ -32,7 +32,7 @@ public class PushDataSender implements Runnable{
 
         try {
 
-            clientSocket = new Socket(address, port); 
+            clientSocket = new Socket(address, port);
 
             outStream = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -40,41 +40,46 @@ public class PushDataSender implements Runnable{
 
             File match = null;
 
-            for (File f : files){
-                if (filename.equals(f.getName())){
+            for (File f : files) {
+                if (filename.equals(f.getName())) {
                     match = f;
                 }
             }
 
-            if (match != null){
+            if (match != null) {
 
-                byte[] buf = new byte[(int)match.length()];
+                byte[] buf = new byte[(int) match.length()];
 
                 freader = new FileInputStream(match);
 
                 freader.read(buf);
                 freader.close();
 
+                ByteBuffer sizeBuff = ByteBuffer.allocate(Long.BYTES);
+                sizeBuff.putLong(match.length());
+                outStream.write(sizeBuff.array());
+
                 outStream.write(buf, 0, buf.length);
 
-                // outStream.flush();  // this seems to be chocking the buffer for outbound packets
-
+                // outStream.flush(); // this seems to be chocking the buffer for outbound
+                // packets
 
                 System.out.println("Successfully sent " + filename + " to " + address + ":" + port);
-            }
-            else{
+            } else {
                 System.out.println("Filename incorrect. Do not have " + filename);
             }
-    } catch (IOException e) {
-        System.out.println("Something went wrong in push data sender");
-    }
+        } catch (IOException e) {
+            System.out.println("Something went wrong in push data sender");
+        }
 
-    try {
-        clientSocket.close(); 
-        freader.close();
-        outStream.close();
-        
-    } catch (IOException e) { System.out.println("Couldn't close the socket for some reason. Error : " + e);}
+        try {
+            clientSocket.close();
+            freader.close();
+            outStream.close();
+
+        } catch (IOException e) {
+            System.out.println("Couldn't close the socket for some reason. Error : " + e);
+        }
 
     }
 
