@@ -25,13 +25,14 @@ public class PushDataSender implements Runnable{
 
     @Override
     public void run() {
-        
+        // create text reader and writer
+        DataOutputStream outStream = null;
+        Socket clientSocket = null;
+        FileInputStream freader = null;
+
         try {
 
-            Socket clientSocket = new Socket(address, port); 
-
-            // create text reader and writer
-            DataOutputStream outStream;
+            clientSocket = new Socket(address, port); 
 
             outStream = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -49,15 +50,14 @@ public class PushDataSender implements Runnable{
 
                 byte[] buf = new byte[(int)match.length()];
 
-                FileInputStream freader = new FileInputStream(match);
+                freader = new FileInputStream(match);
 
                 freader.read(buf);
                 freader.close();
 
                 outStream.write(buf, 0, buf.length);
-                outStream.flush();
+                // outStream.flush();
 
-                clientSocket.close();
 
                 System.out.println("Successfully sent " + filename + " to " + address + ":" + port);
             }
@@ -65,8 +65,15 @@ public class PushDataSender implements Runnable{
                 System.out.println("Filename incorrect. Do not have " + filename);
             }
     } catch (IOException e) {
-        System.out.println("Something went wrong in push data sender");;
+        System.out.println("Something went wrong in push data sender");
     }
+
+    try {
+        clientSocket.close(); 
+        freader.close();
+        outStream.close();
+        
+    } catch (IOException e) { System.out.println("Couldn't close the socket for some reason. Error : " + e);}
 
     }
 

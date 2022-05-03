@@ -28,14 +28,17 @@ public class PushDataReceiver implements Runnable {
     @Override
     public void run() {
 
+        // create text reader and writer
+        DataInputStream inStream = null;
+        OutputStream os = null;
+        ServerSocket servertSocket = null;
+        Socket clientSocket = null;
+
         try {
 
-            ServerSocket servertSocket = new ServerSocket(fromNode.port);
+            servertSocket = new ServerSocket(fromNode.port);
 
-            // create text reader and writer
-            DataInputStream inStream;
-
-            Socket clientSocket = servertSocket.accept();
+            clientSocket = servertSocket.accept();
 
             inStream = new DataInputStream(clientSocket.getInputStream());
 
@@ -43,7 +46,7 @@ public class PushDataReceiver implements Runnable {
 
             File newFile = new File(fromNode.name, filename);
 
-            OutputStream os = new FileOutputStream(newFile);
+            os = new FileOutputStream(newFile);
 
             byte[] buf = new byte[BUFFER_SIZE];
             int inputSize = 0;
@@ -62,21 +65,19 @@ public class PushDataReceiver implements Runnable {
             Long total = (new Date()).getTime() - start;
             float time = total / 1000;
 
-            os.close();
-
-            // inStream;
-            // byte[] buf = new byte[2];
-
-            clientSocket.close();
-            servertSocket.close();
-
             System.out.println("Successfully received " + filename + " in " + time + " seconds");
 
         } catch (IOException e) {
-            System.out.println("Something went wrong in push data sender");
-            ;
+            System.out.println("Something went wrong in push data receiver");
         }
 
+
+        try{
+            os.close();
+            clientSocket.close();
+            servertSocket.close();
+            inStream.close();
+        } catch (Exception e){}
     }
 
 }
