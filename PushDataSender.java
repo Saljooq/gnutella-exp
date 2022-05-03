@@ -56,7 +56,8 @@ public class PushDataSender implements Runnable{
                 freader.close();
 
                 outStream.write(buf, 0, buf.length);
-                // outStream.flush();
+
+                // outStream.flush();  // this seems to be chocking the buffer for outbound packets
 
 
                 System.out.println("Successfully sent " + filename + " to " + address + ":" + port);
