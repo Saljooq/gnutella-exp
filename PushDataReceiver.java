@@ -68,12 +68,13 @@ public class PushDataReceiver implements Runnable {
                 while (true) {
                     inputSize = inStream.read(buf);
                     if (inputSize == -1) {
+                        System.out.print("PROGRESS :  100% of " + fileSizeinKB + " KB done         \r");
                         break;
                     }
 
                     os.write(buf, 0, inputSize);
                     percentDone = percentDone + ((float) (inputSize * 100) / (float) fileSize);
-                    System.out.print("PROGRESS : " + percentDone + "% of " + fileSizeinKB + " KB done     \r");
+                    System.out.print("PROGRESS : " + percentDone + "% of " + fileSizeinKB + " KB downloaded       \r");
                 }
             } catch (Exception e) {
             } // should end when file has ended
