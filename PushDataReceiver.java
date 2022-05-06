@@ -55,23 +55,29 @@ public class PushDataReceiver implements Runnable {
             sizeBuff.put(sizeByte);
             sizeBuff.flip();
             long fileSize = sizeBuff.getLong();
-            System.out.println("File Size incoming : " + fileSize);
+            // System.out.println("File Size incoming : " + fileSize);
 
             byte[] buf = new byte[BUFFER_SIZE];
             int inputSize = 0;
             Long start = (new Date()).getTime();
+            float percentDone = 0;
+            long fileSizeinKB = fileSize / 1000;
 
             try {
 
                 while (true) {
                     inputSize = inStream.read(buf);
-                    if (inputSize == -1)
+                    if (inputSize == -1) {
                         break;
+                    }
 
                     os.write(buf, 0, inputSize);
+                    percentDone = percentDone + ((float) (inputSize * 100) / (float) fileSize);
+                    System.out.print("PROGRESS : " + percentDone + "% of " + fileSizeinKB + " KB done     \r");
                 }
             } catch (Exception e) {
             } // should end when file has ended
+            System.out.println();
 
             Long total = (new Date()).getTime() - start;
             float time = total / 1000;
